@@ -114,6 +114,22 @@ Napi::Value Test(const Napi::CallbackInfo& info) {
         Napi::TypeError::New(env, "invalid arguments").ThrowAsJavaScriptException();
         return env.Undefined();
     }
+
+    if (info.Length() > 2) {
+        if (info[2].IsExternal()) {
+            std::cout << "it's external!\n";
+        }
+        if (info[2].IsNumber()) {
+            std::cout << "It's a number, duh\n";
+        }
+        // make an object
+        Napi::Object o = info[2].As<Napi::Object>();
+        int t = o.Type();
+        // make it a string
+        std::string str = o.ToString();
+        std::cout << "object2string is: " << str << " type " << t << std::endl;
+    }
+
     //std::string s = info[1].As<Napi::String>();
     //std::cout << s << std::endl;
 
@@ -144,11 +160,11 @@ Napi::Value Test(const Napi::CallbackInfo& info) {
 // set up exports
 //
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-    exports.Set(Napi::String::New(env, "hello"), Napi::Function::New(env, HelloWorld));
-    exports.Set(Napi::String::New(env, "add"), Napi::Function::New(env, Add));
-    exports.Set(Napi::String::New(env, "runCallback"), Napi::Function::New(env, RunCallback));
-    exports.Set(Napi::String::New(env, "createObject"), Napi::Function::New(env, CreateObject));
-    exports.Set(Napi::String::New(env, "createFunction"), Napi::Function::New(env, CreateFunction));
+    exports.Set("hello", Napi::Function::New(env, HelloWorld));
+    exports.Set("add", Napi::Function::New(env, Add));
+    exports.Set("runCallback", Napi::Function::New(env, RunCallback));
+    exports.Set("createObject", Napi::Function::New(env, CreateObject));
+    exports.Set("createFunction", Napi::Function::New(env, CreateFunction));
 
     //
     // the Object constructor modifies and returns exports
@@ -156,19 +172,24 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
     exports = MyObject::Init(env, exports);
 
     // object-factory
-    exports.Set(Napi::String::New(env, "CreateThing"), Napi::Function::New(env, CreateThing));
+    exports.Set("CreateThing", Napi::Function::New(env, CreateThing));
     exports = ObjectThing::Init(env, exports);
 
     // addables
     exports = Addable::Init(env, exports);
-    exports.Set(Napi::String::New(env, "createAddable"), Napi::Function::New(env, CreateAddable));
-    exports.Set(Napi::String::New(env, "addAddables"), Napi::Function::New(env, AddAddables));
+    exports.Set("createAddable", Napi::Function::New(env, CreateAddable));
+    exports.Set("addAddables", Napi::Function::New(env, AddAddables));
 
     // undef
-    exports.Set(Napi::String::New(env, "undef"), Napi::Function::New(env, Undef));
+    exports.Set("undef", Napi::Function::New(env, Undef));
 
     // test
-    exports.Set(Napi::String::New(env, "test"), Napi::Function::New(env, Test));
+    exports.Set("test", Napi::Function::New(env, Test));
+
+    // try creating a simple object.
+    Napi::Object o = Napi::Object::New(env);
+    o.Set("xyzzy", Napi::String::New(env, "plover"));
+    exports.Set("o", o);
 
     //
     // return the exports object
