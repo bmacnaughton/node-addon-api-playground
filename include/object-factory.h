@@ -8,7 +8,8 @@ class ObjectThing : public Napi::ObjectWrap<ObjectThing> {
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
   static Napi::Object NewInstance(Napi::Env env, Napi::Value arg);
   ObjectThing(const Napi::CallbackInfo& info);
-  static Napi::Value instanceOf(const Napi::CallbackInfo& info);
+  static Napi::Value isObjectThing(const Napi::CallbackInfo& info);
+  Napi::Value Value(const Napi::CallbackInfo& info);
 
  private:
   static Napi::FunctionReference constructor;
